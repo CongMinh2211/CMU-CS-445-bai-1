@@ -7,9 +7,13 @@ services:
       - "3000:3000"
     environment:
       - DOMAIN=localhost:3000
+      - BASE_PATH=/cmu-cs-445/trancongminh
     volumes:
       - ./uploads:/app/uploads
-    restart: always
+    labels:
+      - traefik.http.routers.app.rule=Host(`localhost`) && PathPrefix(`/cmu-cs-445/trancongminh`)
+      - traefik.http.routers.app.entrypoints=web
+      - traefik.http.services.app.loadbalancer.server.port=3000
 
   traefik:
     image: traefik:v2.10
@@ -22,7 +26,3 @@ services:
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    labels:
-      - traefik.http.routers.app.rule=Host(`localhost`)
-      - traefik.http.routers.app.entrypoints=web
-      - traefik.http.services.app.loadbalancer.server.port=3000

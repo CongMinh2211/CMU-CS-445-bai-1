@@ -1,0 +1,46 @@
+Đây là quy trình "Di dời nhà nhưng giữ nguyên địa chỉ".
+
+Để làm được việc này: Tên miền (HTTPS) của bạn giống như cái biển số nhà, còn Máy chủ (Docker) giống như, căn nhà. Bạn muốn chuyển căn nhà đi nơi khác nhưng biển số vẫn giữ nguyên.
+
+Dưới đây là 3 bước vàng để làm điều đó:
+
+Bước 1: Chuẩn bị "Nhà Mới" (Máy B)
+Trên máy mới, bạn cần setup y hệt máy cũ (Máy A):
+
+Cài Docker: Đảm bảo máy B đã cài Docker.
+Lấy Code về:
+bash
+git clone https://github.com/CongMinh2211/CMU-CS-445-bai-1.git
+cd simple-image-upload
+Copy cấu hình: Tạo file .env y hệt máy cũ.
+env
+DOMAIN=tenmien.com
+EMAIL=email@gmail.com
+BASE_PATH=/cmu-cs-445/trancongminh
+Bước 2: Chuyển "Nội thất" (Dữ liệu ảnh)
+Đây là bước quan trọng nhất để nó "vẫn chạy" (nghĩa là không mất ảnh cũ). Các ảnh đang nằm trong thư mục uploads/ ở máy cũ.
+
+Bạn cần copy thư mục này sang máy mới. Cách đơn giản nhất (chạy lệnh này từ Máy Cũ):
+
+bash
+# scp -r [thư mục nguồn] [user@ip_máy_mới]:[đường dẫn đích]
+scp -r uploads/ root@123.45.67.89:/path/to/simple-image-upload/
+Bước 3: Phù phép Tên Miền (Trỏ DNS)
+Đây là bước quyết định. Hiện tại tên miền tenmien.com đang trỏ vào IP máy cũ. Bạn cần vào trang quản lý tên miền (Namecheap, GoDaddy, Cloudflare...):
+
+Tìm DNS Management.
+Sửa A Record:
+Cũ: Trỏ về IP Máy A.
+Mới: Đổi thành IP Máy B.
+Lưu lại.
+Bước 4: Bật công tắc tại Máy B
+Tại máy mới, chạy lệnh thần thánh:
+
+bash
+docker compose up -d
+Điều gì sẽ xảy ra?
+Traefik trên Máy B sẽ nhận thấy có request gửi đến tenmien.com.
+Nó sẽ TỰ ĐỘNG xin cấp lại chứng chỉ HTTPS mới cho máy B (bạn không cần copy chứng chỉ SSL cũ).
+Docker App sẽ khởi động, thấy thư mục uploads/ (bạn đã copy ở Bước 2) vẫn còn đó.
+Web lên sóng, đường dẫn cũ /cmu-cs-445/trancongminh vẫn hoạt động, ảnh cũ vẫn còn nguyên.
+Tóm lại: Bí quyết nằm ở việc Copy thư mục uploads và Đổi IP trong DNS.
