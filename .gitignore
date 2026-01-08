@@ -1,0 +1,12 @@
+# Ignore node modules
+app/node_modules/
+
+# Ignore environment file
+.env
+
+# Ignore upload folder contents (keep structure)
+uploads/*
+!uploads/.gitkeep
+
+# Ignore Let's Encrypt data
+letsencrypt/
