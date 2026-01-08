@@ -447,6 +447,8 @@
             border-radius: 12px;
             display: block;
             margin: 0 auto;
+            transition: transform 0.2s ease;
+            /* Smooth zoom */
         }
 
         .modal-close {
@@ -577,6 +579,13 @@
             <button class="modal-close" id="modalClose">&times;</button>
             <img id="modalImage" class="modal-image" alt="Full size">
             <div class="modal-info">
+                <button class="btn-download" id="zoomOutBtn" style="margin-right: 10px; background: #666;">
+                    <span class="material-icons">remove</span>
+                </button>
+                <button class="btn-download" id="zoomInBtn" style="margin-right: 10px; background: #666;">
+                    <span class="material-icons">add</span>
+                </button>
+                <div style="width: 1px; height: 30px; background: #ddd; margin: 0 10px;"></div>
                 <button class="btn-download" id="downloadBtn">
                     <span class="material-icons" style="font-size: 18px;">download</span>
                     Tải xuống
@@ -605,9 +614,12 @@
         const modalImage = document.getElementById('modalImage');
         const modalClose = document.getElementById('modalClose');
         const downloadBtn = document.getElementById('downloadBtn');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
 
         let selectedFile = null;
         let currentImageUrl = null;
+        let currentScale = 1;
 
         // Click to select file
         uploadArea.addEventListener('click', () => fileInput.click());
@@ -743,6 +755,8 @@
         function openModal(imageUrl) {
             currentImageUrl = imageUrl;
             modalImage.src = imageUrl;
+            currentScale = 1;
+            updateZoom();
             imageModal.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -751,7 +765,36 @@
             imageModal.classList.remove('active');
             document.body.style.overflow = 'auto';
             currentImageUrl = null;
+            currentScale = 1;
+            updateZoom();
         }
+
+        function updateZoom() {
+            modalImage.style.transform = `scale(${currentScale})`;
+        }
+
+        zoomInBtn.addEventListener('click', () => {
+            currentScale += 0.25;
+            updateZoom();
+        });
+
+        zoomOutBtn.addEventListener('click', () => {
+            if (currentScale > 0.5) {
+                currentScale -= 0.25;
+                updateZoom();
+            }
+        });
+
+        // Optional: Mouse wheel zoom
+        modalImage.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                currentScale += 0.1;
+            } else {
+                if (currentScale > 0.5) currentScale -= 0.1;
+            }
+            updateZoom();
+        });
 
         modalClose.addEventListener('click', closeModal);
         imageModal.addEventListener('click', (e) => {
